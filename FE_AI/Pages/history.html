@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Check - Riwayat</title>
+    <link rel="stylesheet" href="../CSS/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="page-header">
+                <button class="back-button" onclick="goToHome()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <h1 class="page-title">Riwayat Tes Kesehatan</h1>
+            </div>
+
+            <div class="history-list" id="historyList">
+                <!-- History items will be loaded here from backend -->
+                <div class="loading">Memuat riwayat...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../JS/script.js"></script>
+    <script>
+        // Load history data
+        window.addEventListener('DOMContentLoaded', loadHistoryData);
+    </script>
+</body>
+</html>

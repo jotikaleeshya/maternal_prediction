@@ -1,0 +1,334 @@
+// ==========================================
+// CONFIG API
+// ==========================================
+const API_BASE_URL = "http://127.0.0.1:5000";  // Flask backend
+
+// ==========================================
+// Navigation Functions
+// ==========================================
+function goToHome() {
+    window.location.href = "index.html";
+}
+
+function goToHistory() {
+    window.location.href = "history.html";
+}
+
+function goToInput() {
+    window.location.href = "input.html";
+}
+
+function goToResult() {
+    window.location.href = "result.html";
+}
+
+// ==========================================
+// Helper Fetch API Wrapper
+// ==========================================
+async function fetchAPI(endpoint, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            headers: { "Content-Type": "application/json" },
+            ...options,
+        });
+        return await response.json();
+    } catch (err) {
+        console.error("API ERROR:", err);
+        return null;
+    }
+}
+
+// ==========================================
+// HOME PAGE — LOAD DASHBOARD DATA
+// ==========================================
+async function loadHomeData() {
+    // Set username
+    const userName = document.getElementById("userName");
+    if (userName) {
+        userName.innerText = "User";
+    }
+
+    // Load stats from API
+    try {
+        const result = await fetchAPI("/stats");
+
+        if (result && result.success) {
+            const data = result.data;
+
+            document.getElementById("bloodPressure").innerText = data.avgBloodPressure || "--";
+            document.getElementById("bloodSugar").innerText = data.avgBloodSugar || "--";
+            document.getElementById("bmi").innerText = data.avgBMI || "--";
+        } else {
+            // Show default values if no data
+            document.getElementById("bloodPressure").innerText = "--";
+            document.getElementById("bloodSugar").innerText = "--";
+            document.getElementById("bmi").innerText = "--";
+        }
+    } catch (error) {
+        console.error("Error loading home data:", error);
+        document.getElementById("bloodPressure").innerText = "--";
+        document.getElementById("bloodSugar").innerText = "--";
+        document.getElementById("bmi").innerText = "--";
+    }
+}
+
+// ==========================================
+// INPUT PAGE — SUBMIT HEALTH DATA FOR PREDICTION
+// ==========================================
+async function submitHealthData(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    const submitButton = form.querySelector(".submit-button");
+    const originalText = submitButton.textContent;
+    submitButton.textContent = "Memproses...";
+    submitButton.disabled = true;
+
+    // Ambil data input
+    const data = {
+        Age: Number(formData.get("age")),
+        SystolicBP: Number(formData.get("sbp")),
+        DiastolicBP: Number(formData.get("dbp")),
+        BS: Number(formData.get("bs")),
+        BodyTemp: Number(formData.get("temp")),
+        HeartRate: Number(formData.get("hr"))
+    };
+
+    // Validasi input: harus angka dan tidak kosong
+    for (const key in data) {
+        if (data[key] === null || data[key] === undefined || isNaN(data[key])) {
+            alert(`Field ${key} harus diisi dengan angka valid.`);
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            return;
+        }
+    }
+
+    console.log("Payload ke API:", data);
+
+    try {
+        const result = await fetchAPI("/predict", {
+            method: "POST",
+            body: JSON.stringify(data)
+        });
+
+        console.log("Full API response:", result);
+
+        if (result && result.success) {
+            // Simpan hasil prediksi dan data input ke sessionStorage
+            sessionStorage.setItem("latestRisk", result.risk);
+            sessionStorage.setItem("latestData", JSON.stringify(data));
+            goToResult();
+        } else {
+            alert(result?.message || "Gagal memproses data. Pastikan input lengkap.");
+        }
+    } catch (error) {
+        console.error("Error submitting health data:", error);
+        alert("Terjadi kesalahan. Silakan coba lagi.");
+    }
+
+    submitButton.textContent = originalText;
+    submitButton.disabled = false;
+}
+
+// ==========================================
+// RESULT PAGE — DISPLAY RISK LEVEL
+// ==========================================
+function loadResultData() {
+    const risk = sessionStorage.getItem("latestRisk");
+
+    if (!risk) {
+        document.getElementById("riskCategory").innerText = "Kategori: Tidak Ditemukan";
+        document.getElementById("scoreNumber").innerText = "--";
+        document.getElementById("scoreStatus").innerText = "Data tidak tersedia";
+        return;
+    }
+
+    // Set kategori risiko
+    document.getElementById("riskCategory").innerText = `Kategori: ${risk.toUpperCase()}`;
+
+    // Set score berdasarkan risk level
+    let score = 0;
+    let statusText = "";
+    let riskPercentage = 0;
+
+    if (risk === "low risk") {
+        score = 90;
+        statusText = "Kondisi Baik";
+        riskPercentage = 10;
+    } else if (risk === "mid risk") {
+        score = 60;
+        statusText = "Perlu Perhatian";
+        riskPercentage = 40;
+    } else if (risk === "high risk") {
+        score = 30;
+        statusText = "Risiko Tinggi";
+        riskPercentage = 70;
+    }
+
+    document.getElementById("scoreNumber").innerText = score;
+    document.getElementById("scoreStatus").innerText = statusText;
+
+    // Update risk percentage
+    const riskNumber = document.getElementById("riskNumber");
+    if (riskNumber) {
+        riskNumber.innerText = riskPercentage;
+    }
+
+    // Animasi progress circle untuk score utama
+    const circle = document.getElementById("scoreProgress");
+    if (circle) {
+        const circumference = 2 * Math.PI * 88;
+        const offset = circumference - (score / 100) * circumference;
+
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 100);
+    }
+
+    // Animasi progress circle untuk risk
+    const riskCircle = document.getElementById("riskProgress");
+    if (riskCircle) {
+        const circumference = 2 * Math.PI * 36;
+        const offset = circumference - (riskPercentage / 100) * circumference;
+
+        setTimeout(() => {
+            riskCircle.style.strokeDashoffset = offset;
+        }, 100);
+    }
+}
+
+// ==========================================
+// HISTORY PAGE — LOAD HISTORY DATA
+// ==========================================
+async function loadHistoryData() {
+    const historyList = document.getElementById("historyList");
+
+    if (!historyList) return;
+
+    historyList.innerHTML = '<div class="loading">Memuat riwayat...</div>';
+
+    try {
+        const result = await fetchAPI("/history");
+
+        if (result && result.success && result.data.length > 0) {
+            historyList.innerHTML = "";
+
+            result.data.forEach((entry) => {
+                const historyItem = document.createElement("div");
+                historyItem.className = "history-item";
+
+                const riskClass = entry.risk.toLowerCase().replace(" ", "-");
+                const riskLabel = entry.risk.toUpperCase();
+
+                historyItem.innerHTML = `
+                    <div class="history-header">
+                        <div class="history-date">${formatDate(entry.date)}</div>
+                        <div class="history-risk ${riskClass}">${riskLabel}</div>
+                    </div>
+                    <div class="history-details">
+                        <div class="history-detail-item">
+                            <span class="detail-label">Usia:</span>
+                            <span class="detail-value">${entry.age} tahun</span>
+                        </div>
+                        <div class="history-detail-item">
+                            <span class="detail-label">Tekanan Darah:</span>
+                            <span class="detail-value">${entry.systolicBP}/${entry.diastolicBP} mmHg</span>
+                        </div>
+                        <div class="history-detail-item">
+                            <span class="detail-label">Gula Darah:</span>
+                            <span class="detail-value">${entry.bs} mg/dL</span>
+                        </div>
+                        <div class="history-detail-item">
+                            <span class="detail-label">Suhu Tubuh:</span>
+                            <span class="detail-value">${entry.bodyTemp} °C</span>
+                        </div>
+                        <div class="history-detail-item">
+                            <span class="detail-label">Detak Jantung:</span>
+                            <span class="detail-value">${entry.heartRate} bpm</span>
+                        </div>
+                    </div>
+                `;
+
+                historyList.appendChild(historyItem);
+            });
+        } else {
+            historyList.innerHTML = `
+                <div class="empty-history">
+                    <p>Belum ada riwayat tes kesehatan</p>
+                    <button class="submit-button" onclick="goToInput()">Mulai Tes</button>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error("Error loading history:", error);
+        historyList.innerHTML = `
+            <div class="error-message">
+                <p>Gagal memuat riwayat. Pastikan server API berjalan.</p>
+                <button class="submit-button" onclick="loadHistoryData()">Coba Lagi</button>
+            </div>
+        `;
+    }
+}
+
+// ==========================================
+// Helper Functions
+// ==========================================
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return date.toLocaleDateString('id-ID', options);
+}
+
+// ==========================================
+// CLEAR INPUT FIELD
+// ==========================================
+function clearInput(button) {
+    const input = button.parentElement.querySelector(".input-field");
+    input.value = "";
+    input.focus();
+    button.style.display = "none";
+}
+
+// ==========================================
+// Global Init
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    document.documentElement.style.scrollBehavior = "smooth";
+
+    // Submit form - perbaiki selector
+    const form = document.getElementById("healthCheckForm");
+    if (form) {
+        form.addEventListener("submit", submitHealthData);
+    }
+
+    // Show/hide clear buttons
+    const inputs = document.querySelectorAll(".input-field");
+    inputs.forEach((input) => {
+        input.addEventListener("input", function () {
+            const clearBtn = this.parentElement.querySelector(".clear-button");
+            if (clearBtn) clearBtn.style.display = this.value ? "block" : "none";
+        });
+    });
+
+    // Load page specific data
+    if (document.getElementById("riskCategory")) {
+        loadResultData();
+    }
+
+    if (document.getElementById("historyList")) {
+        loadHistoryData();
+    }
+
+    if (document.getElementById("userName")) {
+        loadHomeData();
+    }
+});

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Check - Home</title>
+    <link rel="stylesheet" href="../CSS/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <p class="greeting">Selamat Pagi,</p>
+                <h1 class="user-name" id="userName">Loading...</h1>
+            </div>
+
+            <div class="health-stats">
+                <p class="stats-label">Kondisi 7 hari terakhir</p>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-circle">
+                            <span class="stat-value" id="bloodPressure">--</span>
+                        </div>
+                        <p class="stat-label">Tekanan Darah</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-circle">
+                            <span class="stat-value" id="bloodSugar">--</span>
+                        </div>
+                        <p class="stat-label">Gula Darah</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-circle">
+                            <span class="stat-value" id="bmi">--</span>
+                        </div>
+                        <p class="stat-label">BMI</p>
+                    </div>
+                </div>
+                <p class="see-more" onclick="goToHistory()">
+                    Lihat Riwayat Tes</p>
+            </div>
+
+            <div class="cta-section">
+                <p class="section-title">Cek Kesehatan Kamu</p>
+                <button class="cta-button" onclick="goToInput()">
+                    <div class="cta-content">
+                        <div>
+                            <p class="cta-title">Ayo cek kesehatan!</p>
+                            <p class="cta-description">Lakukan medical check up ke<br>puskesmas terdekat atau secara<br>mandiri</p>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../JS/script.js"></script>
+    <script>
+        // Load home page data
+        window.addEventListener('DOMContentLoaded', loadHomeData);
+    </script>
+</body>
+</html>

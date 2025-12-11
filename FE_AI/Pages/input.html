@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Check - Input Data</title>
+    <link rel="stylesheet" href="../CSS/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="page-header">
+                <button class="back-button" onclick="goToHome()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <h1 class="page-title">Tes Kesehatan</h1>
+            </div>
+
+            <form id="healthCheckForm" class="input-form">
+                <div class="input-group">
+                    <label class="input-label">Usia (tahun)</label>
+                    <div class="input-wrapper">
+                        <input type="number" name="age" class="input-field" placeholder="Masukkan usia" required>
+                        <button type="button" class="clear-button" onclick="clearInput(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Systolic BP (mmHg)</label>
+                    <div class="input-wrapper">
+                        <input type="number" name="sbp" class="input-field" placeholder="Masukkan Systolic BP" required>
+                        <button type="button" class="clear-button" onclick="clearInput(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Diastolic BP (mmHg)</label>
+                    <div class="input-wrapper">
+                        <input type="number" name="dbp" class="input-field" placeholder="Masukkan Diastolic BP" required>
+                        <button type="button" class="clear-button" onclick="clearInput(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Blood Sugar (BS)</label>
+                    <div class="input-wrapper">
+                        <input type="number" name="bs" class="input-field" placeholder="Masukkan Blood Sugar" required>
+                        <button type="button" class="clear-button" onclick="clearInput(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Body Temperature (°C)</label>
+                    <div class="input-wrapper">
+                        <input type="number" step="0.1" name="temp" class="input-field" placeholder="Masukkan suhu tubuh" required>
+                        <button type="button" class="clear-button" onclick="clearInput(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Heart Rate (bpm)</label>
+                    <div class="input-wrapper">
+                        <input type="number" name="hr" class="input-field" placeholder="Masukkan detak jantung" required>
+                        <button type="button" class="clear-button" onclick="clearInput(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-button">
+                    Selesai
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../JS/script.js"></script>
+</body>
+</html>
