@@ -11,9 +11,9 @@ CORS(app)  # Enable CORS untuk frontend
 try:
     with open("maternal_model.pkl", "rb") as f:
         model = pickle.load(f)
-    print("✅ Model loaded successfully")
+    print("[OK] Model loaded successfully")
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
+    print(f"[ERROR] Error loading model: {e}")
     model = None
 
 # Simulasi database untuk history (gunakan database real untuk production)
@@ -47,6 +47,8 @@ def predict():
             return jsonify({"success": False, "message": "Systolic BP harus antara 60-200 mmHg"}), 400
         if not (40 <= dias <= 140):
             return jsonify({"success": False, "message": "Diastolic BP harus antara 40-140 mmHg"}), 400
+        if not (1.0 <= bs <= 30.0):
+            return jsonify({"success": False, "message": "Blood Sugar harus antara 1.0-30.0 mmol/L"}), 400
         if not (30 <= temp <= 45):
             return jsonify({"success": False, "message": "Suhu tubuh harus antara 30-45 °C"}), 400
         if not (40 <= hr <= 200):
@@ -155,6 +157,6 @@ def health_check():
     })
 
 if __name__ == "__main__":
-    print("🚀 Starting Flask API server...")
-    print("📍 Server running at: http://127.0.0.1:5000")
+    print("Starting Flask API server...")
+    print("Server running at: http://127.0.0.1:5000")
     app.run(port=5000, debug=True)
