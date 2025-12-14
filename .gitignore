@@ -1,5 +1,4 @@
-# Claude Code settings (local machine specific)
-.claude/
+
 
 # Python
 __pycache__/
@@ -42,7 +41,7 @@ venv.bak/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Machine Learning Models (optional - uncomment if models are large)
+# Machine Learning Models (optional 
 # *.pkl
 # *.h5
 # *.pb

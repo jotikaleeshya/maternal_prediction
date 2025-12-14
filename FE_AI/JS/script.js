@@ -31,10 +31,16 @@ async function fetchAPI(endpoint, options = {}) {
             headers: { "Content-Type": "application/json" },
             ...options,
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            return errorData;
+        }
+
         return await response.json();
     } catch (err) {
         console.error("API ERROR:", err);
-        return null;
+        return { success: false, message: "Tidak dapat terhubung ke server. Pastikan server API berjalan di http://127.0.0.1:5000" };
     }
 }
 
@@ -96,10 +102,10 @@ async function submitHealthData(event) {
         HeartRate: Number(formData.get("hr"))
     };
 
-    // Validasi input: harus angka dan tidak kosong
+    // Validasi input: harus angka dan tidak kosong atau 0
     for (const key in data) {
-        if (data[key] === null || data[key] === undefined || isNaN(data[key])) {
-            alert(`Field ${key} harus diisi dengan angka valid.`);
+        if (data[key] === null || data[key] === undefined || isNaN(data[key]) || data[key] === 0) {
+            alert(`Field ${key} harus diisi dengan angka valid (tidak boleh kosong atau 0).`);
             submitButton.textContent = originalText;
             submitButton.disabled = false;
             return;
