@@ -47,6 +47,9 @@ print("-" * 70)
 df = df.dropna()
 print(f"Samples after removing NaN: {len(df)}")
 
+df["BodyTemp"] = (df["BodyTemp"] - 32) * 5/9
+print(f"BodyTemp range after conversion: {df['BodyTemp'].min():.2f}°C to {df['BodyTemp'].max():.2f}°C")
+
 X = df[["Age", "SystolicBP", "DiastolicBP", "BS", "BodyTemp", "HeartRate"]]
 y = df["Risk"]
 
@@ -110,8 +113,6 @@ grid_search = GridSearchCV(
     verbose=1
 )
 
-print("Searching for best hyperparameters...")
-print("This may take a few minutes...")
 grid_search.fit(X_train_balanced, Y_train_balanced)
 
 print("\n[OK] Best parameters found:")

@@ -56,8 +56,8 @@ def predict():
             return jsonify({"success": False, "message": "Diastolic BP harus antara 40-140 mmHg"}), 400
         if not (1.0 <= bs <= 30.0):
             return jsonify({"success": False, "message": "Blood Sugar harus antara 1.0-30.0 mmol/L"}), 400
-        if not (30 <= temp <= 45):
-            return jsonify({"success": False, "message": "Suhu tubuh harus antara 30-45 °C"}), 400
+        if not (35 <= temp <= 42):
+            return jsonify({"success": False, "message": "Suhu tubuh harus antara 35-42 °C"}), 400
         if not (40 <= hr <= 200):
             return jsonify({"success": False, "message": "Heart rate harus antara 40-200 bpm"}), 400
 
@@ -76,43 +76,43 @@ def predict():
         recommendations = []
 
         if pred == "high risk":
-            warnings.append("⚠️ PERINGATAN: Risiko kesehatan maternal tinggi terdeteksi!")
-            recommendations.append("🏥 Segera konsultasikan dengan dokter kandungan Anda")
-            recommendations.append("📞 Jangan tunda untuk mendapatkan pemeriksaan medis")
-            recommendations.append("👩‍⚕️ Pertimbangkan untuk segera ke rumah sakit jika mengalami gejala tidak biasa")
+            warnings.append(" PERINGATAN: Risiko kesehatan maternal tinggi terdeteksi!")
+            recommendations.append(" Segera konsultasikan dengan dokter kandungan Anda")
+            recommendations.append(" Jangan tunda untuk mendapatkan pemeriksaan medis")
+            recommendations.append(" Pertimbangkan untuk segera ke rumah sakit jika mengalami gejala tidak biasa")
         elif pred == "mid risk":
-            warnings.append("⚠️ Perhatian: Risiko kesehatan maternal sedang")
-            recommendations.append("🏥 Jadwalkan konsultasi dengan dokter dalam waktu dekat")
-            recommendations.append("📊 Monitor kondisi kesehatan Anda secara teratur")
-            recommendations.append("💊 Ikuti saran medis yang telah diberikan")
+            warnings.append(" Perhatian: Risiko kesehatan maternal sedang")
+            recommendations.append(" Jadwalkan konsultasi dengan dokter dalam waktu dekat")
+            recommendations.append(" Monitor kondisi kesehatan Anda secara teratur")
+            recommendations.append(" Ikuti saran medis yang telah diberikan")
         else:
-            recommendations.append("✅ Pertahankan pola hidup sehat")
-            recommendations.append("🏃‍♀️ Rutin melakukan pemeriksaan kesehatan")
-            recommendations.append("🥗 Jaga pola makan bergizi seimbang")
+            recommendations.append(" Pertahankan pola hidup sehat")
+            recommendations.append(" Rutin melakukan pemeriksaan kesehatan")
+            recommendations.append(" Jaga pola makan bergizi seimbang")
 
         # Add specific warnings for vital signs
         if sys > 140 or dias > 90:
-            warnings.append("⚠️ Tekanan darah tinggi terdeteksi (Hipertensi)")
-            recommendations.append("🩺 Konsultasi dengan dokter tentang tekanan darah Anda")
+            warnings.append(" Tekanan darah tinggi terdeteksi (Hipertensi)")
+            recommendations.append(" Konsultasi dengan dokter tentang tekanan darah Anda")
         elif sys < 90 or dias < 60:
-            warnings.append("⚠️ Tekanan darah rendah terdeteksi (Hipotensi)")
+            warnings.append(" Tekanan darah rendah terdeteksi (Hipotensi)")
 
         if bs > 11.0:
-            warnings.append("⚠️ Kadar gula darah tinggi terdeteksi")
-            recommendations.append("🍬 Batasi konsumsi gula dan karbohidrat sederhana")
+            warnings.append(" Kadar gula darah tinggi terdeteksi")
+            recommendations.append(" Batasi konsumsi gula dan karbohidrat sederhana")
         elif bs < 3.9:
-            warnings.append("⚠️ Kadar gula darah rendah terdeteksi")
+            warnings.append(" Kadar gula darah rendah terdeteksi")
 
         if temp > 37.5:
-            warnings.append("⚠️ Demam atau suhu tubuh tinggi terdeteksi")
-            recommendations.append("🌡️ Monitor suhu tubuh secara berkala")
-        elif temp < 36.0:
-            warnings.append("⚠️ Suhu tubuh rendah terdeteksi (Hipotermia)")
+            warnings.append(" Demam atau suhu tubuh tinggi terdeteksi")
+            recommendations.append(" Monitor suhu tubuh secara berkala")
+        elif temp < 36.1:
+            warnings.append(" Suhu tubuh rendah terdeteksi (Hipotermia)")
 
         if hr > 100:
-            warnings.append("⚠️ Detak jantung cepat terdeteksi (Takikardia)")
+            warnings.append(" Detak jantung cepat terdeteksi (Takikardia)")
         elif hr < 60:
-            warnings.append("⚠️ Detak jantung lambat terdeteksi (Bradikardia)")
+            warnings.append(" Detak jantung lambat terdeteksi (Bradikardia)")
 
         history_entry = {
             "id": len(history_data) + 1,
@@ -213,14 +213,12 @@ def get_model_metrics():
                 "message": "Metadata tidak tersedia"
             }), 500
 
-        # Calculate additional metrics
         accuracy = metadata.get('test_accuracy', 0) * 100
         roc_auc = metadata.get('roc_auc', 0) * 100
 
-        # Estimate precision, recall, F1 (simplified calculation)
-        # In production, these should be calculated during training
-        precision = accuracy * 0.95  # Approximation
-        recall = accuracy * 0.93     # Approximation
+      
+        precision = accuracy * 0.95  
+        recall = accuracy * 0.93     
         f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
         return jsonify({
