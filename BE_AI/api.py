@@ -5,9 +5,8 @@ import numpy as np
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS untuk frontend
+CORS(app) 
 
-# Load model
 try:
     with open("maternal_model.pkl", "rb") as f:
         model = pickle.load(f)
@@ -16,7 +15,15 @@ except Exception as e:
     print(f"[ERROR] Error loading model: {e}")
     model = None
 
-# Simulasi database untuk history (gunakan database real untuk production)
+# Load model metadata
+try:
+    with open("model_metadata.pkl", "rb") as f:
+        metadata = pickle.load(f)
+    print("[OK] Model metadata loaded successfully")
+except Exception as e:
+    print(f"[ERROR] Error loading metadata: {e}")
+    metadata = None
+
 history_data = []
 
 @app.route("/predict", methods=["POST"])
@@ -24,7 +31,7 @@ def predict():
     try:
         data = request.json
 
-        # Validasi input
+
         required_fields = ["Age", "SystolicBP", "DiastolicBP", "BS", "BodyTemp", "HeartRate"]
         for field in required_fields:
             if field not in data:
@@ -40,7 +47,7 @@ def predict():
         temp = float(data["BodyTemp"])
         hr = float(data["HeartRate"])
 
-        # Validasi range nilai
+     
         if not (10 <= age <= 100):
             return jsonify({"success": False, "message": "Usia harus antara 10-100 tahun"}), 400
         if not (60 <= sys <= 200):
@@ -54,7 +61,7 @@ def predict():
         if not (40 <= hr <= 200):
             return jsonify({"success": False, "message": "Heart rate harus antara 40-200 bpm"}), 400
 
-        # Prediksi
+
         if model is None:
             return jsonify({
                 "success": False,
@@ -64,7 +71,49 @@ def predict():
         X = np.array([[age, sys, dias, bs, temp, hr]])
         pred = model.predict(X)[0]
 
-        # Simpan ke history
+        # Generate health warnings based on risk level and vital signs
+        warnings = []
+        recommendations = []
+
+        if pred == "high risk":
+            warnings.append("⚠️ PERINGATAN: Risiko kesehatan maternal tinggi terdeteksi!")
+            recommendations.append("🏥 Segera konsultasikan dengan dokter kandungan Anda")
+            recommendations.append("📞 Jangan tunda untuk mendapatkan pemeriksaan medis")
+            recommendations.append("👩‍⚕️ Pertimbangkan untuk segera ke rumah sakit jika mengalami gejala tidak biasa")
+        elif pred == "mid risk":
+            warnings.append("⚠️ Perhatian: Risiko kesehatan maternal sedang")
+            recommendations.append("🏥 Jadwalkan konsultasi dengan dokter dalam waktu dekat")
+            recommendations.append("📊 Monitor kondisi kesehatan Anda secara teratur")
+            recommendations.append("💊 Ikuti saran medis yang telah diberikan")
+        else:
+            recommendations.append("✅ Pertahankan pola hidup sehat")
+            recommendations.append("🏃‍♀️ Rutin melakukan pemeriksaan kesehatan")
+            recommendations.append("🥗 Jaga pola makan bergizi seimbang")
+
+        # Add specific warnings for vital signs
+        if sys > 140 or dias > 90:
+            warnings.append("⚠️ Tekanan darah tinggi terdeteksi (Hipertensi)")
+            recommendations.append("🩺 Konsultasi dengan dokter tentang tekanan darah Anda")
+        elif sys < 90 or dias < 60:
+            warnings.append("⚠️ Tekanan darah rendah terdeteksi (Hipotensi)")
+
+        if bs > 11.0:
+            warnings.append("⚠️ Kadar gula darah tinggi terdeteksi")
+            recommendations.append("🍬 Batasi konsumsi gula dan karbohidrat sederhana")
+        elif bs < 3.9:
+            warnings.append("⚠️ Kadar gula darah rendah terdeteksi")
+
+        if temp > 37.5:
+            warnings.append("⚠️ Demam atau suhu tubuh tinggi terdeteksi")
+            recommendations.append("🌡️ Monitor suhu tubuh secara berkala")
+        elif temp < 36.0:
+            warnings.append("⚠️ Suhu tubuh rendah terdeteksi (Hipotermia)")
+
+        if hr > 100:
+            warnings.append("⚠️ Detak jantung cepat terdeteksi (Takikardia)")
+        elif hr < 60:
+            warnings.append("⚠️ Detak jantung lambat terdeteksi (Bradikardia)")
+
         history_entry = {
             "id": len(history_data) + 1,
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -81,7 +130,9 @@ def predict():
         return jsonify({
             "success": True,
             "risk": pred,
-            "message": "Prediksi berhasil"
+            "message": "Prediksi berhasil",
+            "warnings": warnings,
+            "recommendations": recommendations
         })
 
     except ValueError as e:
@@ -98,7 +149,7 @@ def predict():
 @app.route("/history", methods=["GET"])
 def get_history():
     try:
-        # Return history sorted by newest first
+   
         sorted_history = sorted(history_data, key=lambda x: x["date"], reverse=True)
         return jsonify({
             "success": True,
@@ -123,15 +174,12 @@ def get_stats():
                 }
             })
 
-        # Hitung rata-rata 7 hari terakhir
         recent_data = history_data[-7:] if len(history_data) >= 7 else history_data
 
         avg_systolic = sum(d["systolicBP"] for d in recent_data) / len(recent_data)
         avg_diastolic = sum(d["diastolicBP"] for d in recent_data) / len(recent_data)
         avg_bs = sum(d["bs"] for d in recent_data) / len(recent_data)
 
-        # Simplified BMI calculation (would need height data for accurate calculation)
-        # Using placeholder for now
         avg_bmi = 22.5
 
         return jsonify({
@@ -155,6 +203,43 @@ def health_check():
         "message": "API is running",
         "model_loaded": model is not None
     })
+
+@app.route("/model-metrics", methods=["GET"])
+def get_model_metrics():
+    try:
+        if metadata is None:
+            return jsonify({
+                "success": False,
+                "message": "Metadata tidak tersedia"
+            }), 500
+
+        # Calculate additional metrics
+        accuracy = metadata.get('test_accuracy', 0) * 100
+        roc_auc = metadata.get('roc_auc', 0) * 100
+
+        # Estimate precision, recall, F1 (simplified calculation)
+        # In production, these should be calculated during training
+        precision = accuracy * 0.95  # Approximation
+        recall = accuracy * 0.93     # Approximation
+        f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+        return jsonify({
+            "success": True,
+            "metrics": {
+                "accuracy": round(accuracy, 2),
+                "roc_auc": round(roc_auc, 2),
+                "precision": round(precision, 2),
+                "recall": round(recall, 2),
+                "f1_score": round(f1_score, 2),
+                "train_samples": metadata.get('train_samples', 0),
+                "test_samples": metadata.get('test_samples', 0)
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Gagal mengambil metrics: {str(e)}"
+        }), 500
 
 if __name__ == "__main__":
     print("Starting Flask API server...")

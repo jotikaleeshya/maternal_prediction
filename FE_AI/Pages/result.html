@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="../CSS/styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="card">
+    <div class="container result-container">
+        <div class="card main-result-card">
             <h1 class="result-title">Hasil</h1>
 
             <div class="result-score">
@@ -47,6 +47,60 @@
             <button class="submit-button" onclick="goToHome()">
                 Kembali ke Beranda
             </button>
+        </div>
+
+        <!-- Side Panel for Model Metrics and Warnings -->
+        <div class="side-panel">
+            <div class="panel-section">
+                <h3 class="panel-title">📊 Akurasi Model AI</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value" id="metricAccuracy">--</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">ROC AUC</span>
+                        <span class="metric-value" id="metricROC">--</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Precision</span>
+                        <span class="metric-value" id="metricPrecision">--</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Recall</span>
+                        <span class="metric-value" id="metricRecall">--</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">F1-Score</span>
+                        <span class="metric-value" id="metricF1">--</span>
+                    </div>
+                </div>
+                <p class="metrics-info">
+                    <small>Dilatih dengan <span id="trainSamples">--</span> data, divalidasi dengan <span id="testSamples">--</span> data</small>
+                </p>
+            </div>
+
+            <div class="panel-section warnings-section">
+                <h3 class="panel-title">⚠️ Peringatan</h3>
+                <div id="warningsList" class="warnings-list">
+                    <p class="loading-text">Memuat peringatan...</p>
+                </div>
+            </div>
+
+            <div class="panel-section recommendations-section">
+                <h3 class="panel-title">💡 Rekomendasi</h3>
+                <div id="recommendationsList" class="recommendations-list">
+                    <p class="loading-text">Memuat rekomendasi...</p>
+                </div>
+            </div>
+
+            <div class="panel-section disclaimer-section">
+                <h3 class="panel-title">⚕️ Disclaimer</h3>
+                <p class="disclaimer-text">
+                    Hasil prediksi ini bersifat informatif dan tidak menggantikan diagnosis medis profesional.
+                    Selalu konsultasikan dengan tenaga medis untuk penanganan yang tepat.
+                </p>
+            </div>
         </div>
     </div>
 

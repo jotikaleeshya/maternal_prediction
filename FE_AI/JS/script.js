@@ -123,9 +123,11 @@ async function submitHealthData(event) {
         console.log("Full API response:", result);
 
         if (result && result.success) {
-            // Simpan hasil prediksi dan data input ke sessionStorage
+            // Simpan hasil prediksi, warnings, dan recommendations ke sessionStorage
             sessionStorage.setItem("latestRisk", result.risk);
             sessionStorage.setItem("latestData", JSON.stringify(data));
+            sessionStorage.setItem("latestWarnings", JSON.stringify(result.warnings || []));
+            sessionStorage.setItem("latestRecommendations", JSON.stringify(result.recommendations || []));
             goToResult();
         } else {
             alert(result?.message || "Gagal memproses data. Pastikan input lengkap.");
@@ -142,7 +144,7 @@ async function submitHealthData(event) {
 // ==========================================
 // RESULT PAGE — DISPLAY RISK LEVEL
 // ==========================================
-function loadResultData() {
+async function loadResultData() {
     const risk = sessionStorage.getItem("latestRisk");
 
     if (!risk) {
@@ -203,6 +205,62 @@ function loadResultData() {
         setTimeout(() => {
             riskCircle.style.strokeDashoffset = offset;
         }, 100);
+    }
+
+    // Load model metrics
+    await loadModelMetrics();
+
+    // Load warnings and recommendations
+    loadWarningsAndRecommendations();
+}
+
+// Load model accuracy metrics
+async function loadModelMetrics() {
+    try {
+        const result = await fetchAPI("/model-metrics");
+
+        if (result && result.success) {
+            const metrics = result.metrics;
+
+            document.getElementById("metricAccuracy").innerText = `${metrics.accuracy}%`;
+            document.getElementById("metricROC").innerText = `${metrics.roc_auc}%`;
+            document.getElementById("metricPrecision").innerText = `${metrics.precision}%`;
+            document.getElementById("metricRecall").innerText = `${metrics.recall}%`;
+            document.getElementById("metricF1").innerText = `${metrics.f1_score}%`;
+            document.getElementById("trainSamples").innerText = metrics.train_samples;
+            document.getElementById("testSamples").innerText = metrics.test_samples;
+        }
+    } catch (error) {
+        console.error("Error loading model metrics:", error);
+    }
+}
+
+// Load warnings and recommendations
+function loadWarningsAndRecommendations() {
+    const warningsData = JSON.parse(sessionStorage.getItem("latestWarnings") || "[]");
+    const recommendationsData = JSON.parse(sessionStorage.getItem("latestRecommendations") || "[]");
+
+    const warningsList = document.getElementById("warningsList");
+    const recommendationsList = document.getElementById("recommendationsList");
+
+    if (warningsList) {
+        if (warningsData.length > 0) {
+            warningsList.innerHTML = warningsData.map(warning =>
+                `<div class="warning-item">${warning}</div>`
+            ).join('');
+        } else {
+            warningsList.innerHTML = '<p class="no-warnings">✅ Tidak ada peringatan khusus</p>';
+        }
+    }
+
+    if (recommendationsList) {
+        if (recommendationsData.length > 0) {
+            recommendationsList.innerHTML = recommendationsData.map(rec =>
+                `<div class="recommendation-item">${rec}</div>`
+            ).join('');
+        } else {
+            recommendationsList.innerHTML = '<p class="no-recommendations">Tidak ada rekomendasi tambahan</p>';
+        }
     }
 }
 
