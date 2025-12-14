@@ -3,26 +3,31 @@ from flask_cors import CORS
 import pickle
 import numpy as np
 from datetime import datetime
+import os
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app)
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "maternal_model.pkl")
+
+print(f"[DEBUG] BASE_DIR: {BASE_DIR}")
+print(f"[DEBUG] MODEL_PATH: {MODEL_PATH}")
+print(f"[DEBUG] Model file exists: {os.path.exists(MODEL_PATH)}")
+
+model = None
 
 try:
-    with open("maternal_model.pkl", "rb") as f:
+    print(f"[INFO] Attempting to load model from {MODEL_PATH}")
+    with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
-    print("[OK] Model loaded successfully")
+    print(f"[OK] Model loaded successfully: {type(model)}")
+    print(f"[OK] Model has predict method: {hasattr(model, 'predict')}")
 except Exception as e:
     print(f"[ERROR] Error loading model: {e}")
-    model = None
-
-# Load model metadata
-try:
-    with open("model_metadata.pkl", "rb") as f:
-        metadata = pickle.load(f)
-    print("[OK] Model metadata loaded successfully")
-except Exception as e:
-    print(f"[ERROR] Error loading metadata: {e}")
-    metadata = None
+    import traceback
+    traceback.print_exc()
 
 history_data = []
 
@@ -71,7 +76,7 @@ def predict():
         X = np.array([[age, sys, dias, bs, temp, hr]])
         pred = model.predict(X)[0]
 
-        # Generate health warnings based on risk level and vital signs
+        #
         warnings = []
         recommendations = []
 
@@ -90,7 +95,7 @@ def predict():
             recommendations.append(" Rutin melakukan pemeriksaan kesehatan")
             recommendations.append(" Jaga pola makan bergizi seimbang")
 
-        # Add specific warnings for vital signs
+        
         if sys > 140 or dias > 90:
             warnings.append(" Tekanan darah tinggi terdeteksi (Hipertensi)")
             recommendations.append(" Konsultasi dengan dokter tentang tekanan darah Anda")
@@ -204,42 +209,7 @@ def health_check():
         "model_loaded": model is not None
     })
 
-@app.route("/model-metrics", methods=["GET"])
-def get_model_metrics():
-    try:
-        if metadata is None:
-            return jsonify({
-                "success": False,
-                "message": "Metadata tidak tersedia"
-            }), 500
-
-        accuracy = metadata.get('test_accuracy', 0) * 100
-        roc_auc = metadata.get('roc_auc', 0) * 100
-
-      
-        precision = accuracy * 0.95  
-        recall = accuracy * 0.93     
-        f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-
-        return jsonify({
-            "success": True,
-            "metrics": {
-                "accuracy": round(accuracy, 2),
-                "roc_auc": round(roc_auc, 2),
-                "precision": round(precision, 2),
-                "recall": round(recall, 2),
-                "f1_score": round(f1_score, 2),
-                "train_samples": metadata.get('train_samples', 0),
-                "test_samples": metadata.get('test_samples', 0)
-            }
-        })
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "message": f"Gagal mengambil metrics: {str(e)}"
-        }), 500
-
 if __name__ == "__main__":
     print("Starting Flask API server...")
     print("Server running at: http://127.0.0.1:5000")
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True, use_reloader=False)

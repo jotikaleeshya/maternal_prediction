@@ -100,7 +100,7 @@ base_model = RandomForestClassifier(
     bootstrap=True,
     oob_score=True,
     class_weight='balanced',
-    n_jobs=-1
+    n_jobs=1
 )
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -109,7 +109,7 @@ grid_search = GridSearchCV(
     param_grid,
     cv=skf,
     scoring='f1_macro',
-    n_jobs=-1,
+    n_jobs=1,
     verbose=1
 )
 

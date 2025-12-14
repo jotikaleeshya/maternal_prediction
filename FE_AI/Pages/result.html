@@ -49,37 +49,7 @@
             </button>
         </div>
 
-        <!-- Side Panel for Model Metrics and Warnings -->
         <div class="side-panel">
-            <div class="panel-section">
-                <h3 class="panel-title">Akurasi Model AI</h3>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="metric-label">Accuracy</span>
-                        <span class="metric-value" id="metricAccuracy">--</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-label">ROC AUC</span>
-                        <span class="metric-value" id="metricROC">--</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-label">Precision</span>
-                        <span class="metric-value" id="metricPrecision">--</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-label">Recall</span>
-                        <span class="metric-value" id="metricRecall">--</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-label">F1-Score</span>
-                        <span class="metric-value" id="metricF1">--</span>
-                    </div>
-                </div>
-                <p class="metrics-info">
-                    <small>Dilatih dengan <span id="trainSamples">--</span> data, divalidasi dengan <span id="testSamples">--</span> data</small>
-                </p>
-            </div>
-
             <div class="panel-section warnings-section">
                 <h3 class="panel-title">Peringatan</h3>
                 <div id="warningsList" class="warnings-list">
@@ -106,7 +76,6 @@
 
     <script src="../JS/script.js"></script>
     <script>
-        // Load result data
         window.addEventListener('DOMContentLoaded', loadResultData);
     </script>
 </body>

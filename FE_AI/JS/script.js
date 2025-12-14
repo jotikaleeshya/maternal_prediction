@@ -82,8 +82,8 @@ async function submitHealthData(event) {
         Age: Number(formData.get("age")),
         SystolicBP: Number(formData.get("sbp")),
         DiastolicBP: Number(formData.get("dbp")),
-        BS: Number(formData.get("bs")),
-        BodyTemp: Number(formData.get("temp")),
+        BS: parseFloat(formData.get("bs")),
+        BodyTemp: parseFloat(formData.get("temp")),
         HeartRate: Number(formData.get("hr"))
     };
 
@@ -183,29 +183,7 @@ async function loadResultData() {
         }, 100);
     }
 
-    await loadModelMetrics();
-
     loadWarningsAndRecommendations();
-}
-
-async function loadModelMetrics() {
-    try {
-        const result = await fetchAPI("/model-metrics");
-
-        if (result && result.success) {
-            const metrics = result.metrics;
-
-            document.getElementById("metricAccuracy").innerText = `${metrics.accuracy}%`;
-            document.getElementById("metricROC").innerText = `${metrics.roc_auc}%`;
-            document.getElementById("metricPrecision").innerText = `${metrics.precision}%`;
-            document.getElementById("metricRecall").innerText = `${metrics.recall}%`;
-            document.getElementById("metricF1").innerText = `${metrics.f1_score}%`;
-            document.getElementById("trainSamples").innerText = metrics.train_samples;
-            document.getElementById("testSamples").innerText = metrics.test_samples;
-        }
-    } catch (error) {
-        console.error("Error loading model metrics:", error);
-    }
 }
 
 function loadWarningsAndRecommendations() {
@@ -272,7 +250,7 @@ async function loadHistoryData() {
                         </div>
                         <div class="history-detail-item">
                             <span class="detail-label">Gula Darah:</span>
-                            <span class="detail-value">${entry.bs} mg/dL</span>
+                            <span class="detail-value">${entry.bs} mmol/L</span>
                         </div>
                         <div class="history-detail-item">
                             <span class="detail-label">Suhu Tubuh:</span>
