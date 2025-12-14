@@ -1,11 +1,6 @@
-// ==========================================
-// CONFIG API
-// ==========================================
-const API_BASE_URL = "http://127.0.0.1:5000";  // Flask backend
 
-// ==========================================
-// Navigation Functions
-// ==========================================
+const API_BASE_URL = "http://127.0.0.1:5000"; 
+
 function goToHome() {
     window.location.href = "index.html";
 }
@@ -22,9 +17,6 @@ function goToResult() {
     window.location.href = "result.html";
 }
 
-// ==========================================
-// Helper Fetch API Wrapper
-// ==========================================
 async function fetchAPI(endpoint, options = {}) {
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -44,17 +36,14 @@ async function fetchAPI(endpoint, options = {}) {
     }
 }
 
-// ==========================================
-// HOME PAGE — LOAD DASHBOARD DATA
-// ==========================================
 async function loadHomeData() {
-    // Set username
+
     const userName = document.getElementById("userName");
     if (userName) {
-        userName.innerText = "User";
+        userName.innerText = "Selamat datang di Materlife!";
     }
 
-    // Load stats from API
+
     try {
         const result = await fetchAPI("/stats");
 
@@ -65,7 +54,7 @@ async function loadHomeData() {
             document.getElementById("bloodSugar").innerText = data.avgBloodSugar || "--";
             document.getElementById("bmi").innerText = data.avgBMI || "--";
         } else {
-            // Show default values if no data
+           
             document.getElementById("bloodPressure").innerText = "--";
             document.getElementById("bloodSugar").innerText = "--";
             document.getElementById("bmi").innerText = "--";
@@ -78,9 +67,6 @@ async function loadHomeData() {
     }
 }
 
-// ==========================================
-// INPUT PAGE — SUBMIT HEALTH DATA FOR PREDICTION
-// ==========================================
 async function submitHealthData(event) {
     event.preventDefault();
 
@@ -92,7 +78,6 @@ async function submitHealthData(event) {
     submitButton.textContent = "Memproses...";
     submitButton.disabled = true;
 
-    // Ambil data input
     const data = {
         Age: Number(formData.get("age")),
         SystolicBP: Number(formData.get("sbp")),
@@ -102,7 +87,6 @@ async function submitHealthData(event) {
         HeartRate: Number(formData.get("hr"))
     };
 
-    // Validasi input: harus angka dan tidak kosong atau 0
     for (const key in data) {
         if (data[key] === null || data[key] === undefined || isNaN(data[key]) || data[key] === 0) {
             alert(`Field ${key} harus diisi dengan angka valid (tidak boleh kosong atau 0).`);
@@ -123,7 +107,7 @@ async function submitHealthData(event) {
         console.log("Full API response:", result);
 
         if (result && result.success) {
-            // Simpan hasil prediksi, warnings, dan recommendations ke sessionStorage
+          
             sessionStorage.setItem("latestRisk", result.risk);
             sessionStorage.setItem("latestData", JSON.stringify(data));
             sessionStorage.setItem("latestWarnings", JSON.stringify(result.warnings || []));
@@ -141,9 +125,6 @@ async function submitHealthData(event) {
     submitButton.disabled = false;
 }
 
-// ==========================================
-// RESULT PAGE — DISPLAY RISK LEVEL
-// ==========================================
 async function loadResultData() {
     const risk = sessionStorage.getItem("latestRisk");
 
@@ -154,10 +135,8 @@ async function loadResultData() {
         return;
     }
 
-    // Set kategori risiko
     document.getElementById("riskCategory").innerText = `Kategori: ${risk.toUpperCase()}`;
 
-    // Set score berdasarkan risk level
     let score = 0;
     let statusText = "";
     let riskPercentage = 0;
@@ -179,13 +158,11 @@ async function loadResultData() {
     document.getElementById("scoreNumber").innerText = score;
     document.getElementById("scoreStatus").innerText = statusText;
 
-    // Update risk percentage
     const riskNumber = document.getElementById("riskNumber");
     if (riskNumber) {
         riskNumber.innerText = riskPercentage;
     }
 
-    // Animasi progress circle untuk score utama
     const circle = document.getElementById("scoreProgress");
     if (circle) {
         const circumference = 2 * Math.PI * 88;
@@ -196,7 +173,6 @@ async function loadResultData() {
         }, 100);
     }
 
-    // Animasi progress circle untuk risk
     const riskCircle = document.getElementById("riskProgress");
     if (riskCircle) {
         const circumference = 2 * Math.PI * 36;
@@ -207,14 +183,11 @@ async function loadResultData() {
         }, 100);
     }
 
-    // Load model metrics
     await loadModelMetrics();
 
-    // Load warnings and recommendations
     loadWarningsAndRecommendations();
 }
 
-// Load model accuracy metrics
 async function loadModelMetrics() {
     try {
         const result = await fetchAPI("/model-metrics");
@@ -235,7 +208,6 @@ async function loadModelMetrics() {
     }
 }
 
-// Load warnings and recommendations
 function loadWarningsAndRecommendations() {
     const warningsData = JSON.parse(sessionStorage.getItem("latestWarnings") || "[]");
     const recommendationsData = JSON.parse(sessionStorage.getItem("latestRecommendations") || "[]");
@@ -249,7 +221,7 @@ function loadWarningsAndRecommendations() {
                 `<div class="warning-item">${warning}</div>`
             ).join('');
         } else {
-            warningsList.innerHTML = '<p class="no-warnings">✅ Tidak ada peringatan khusus</p>';
+            warningsList.innerHTML = '<p class="no-warnings">Tidak ada peringatan khusus</p>';
         }
     }
 
@@ -264,9 +236,6 @@ function loadWarningsAndRecommendations() {
     }
 }
 
-// ==========================================
-// HISTORY PAGE — LOAD HISTORY DATA
-// ==========================================
 async function loadHistoryData() {
     const historyList = document.getElementById("historyList");
 
@@ -337,9 +306,6 @@ async function loadHistoryData() {
     }
 }
 
-// ==========================================
-// Helper Functions
-// ==========================================
 function formatDate(dateString) {
     const date = new Date(dateString);
     const options = {
@@ -352,9 +318,6 @@ function formatDate(dateString) {
     return date.toLocaleDateString('id-ID', options);
 }
 
-// ==========================================
-// CLEAR INPUT FIELD
-// ==========================================
 function clearInput(button) {
     const input = button.parentElement.querySelector(".input-field");
     input.value = "";
@@ -362,19 +325,14 @@ function clearInput(button) {
     button.style.display = "none";
 }
 
-// ==========================================
-// Global Init
-// ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.style.scrollBehavior = "smooth";
 
-    // Submit form - perbaiki selector
     const form = document.getElementById("healthCheckForm");
     if (form) {
         form.addEventListener("submit", submitHealthData);
     }
 
-    // Show/hide clear buttons
     const inputs = document.querySelectorAll(".input-field");
     inputs.forEach((input) => {
         input.addEventListener("input", function () {
@@ -383,7 +341,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Load page specific data
     if (document.getElementById("riskCategory")) {
         loadResultData();
     }
