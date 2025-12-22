@@ -52,18 +52,21 @@ async function loadHomeData() {
 
             document.getElementById("bloodPressure").innerText = data.avgBloodPressure || "--";
             document.getElementById("bloodSugar").innerText = data.avgBloodSugar || "--";
-            document.getElementById("bmi").innerText = data.avgBMI || "--";
+            document.getElementById("bodyTemp").innerText = data.avgBodyTemp || "--";
+            document.getElementById("heartRate").innerText = data.avgHeartRate || "--";
         } else {
-           
+
             document.getElementById("bloodPressure").innerText = "--";
             document.getElementById("bloodSugar").innerText = "--";
-            document.getElementById("bmi").innerText = "--";
+            document.getElementById("bodyTemp").innerText = "--";
+            document.getElementById("heartRate").innerText = "--";
         }
     } catch (error) {
         console.error("Error loading home data:", error);
         document.getElementById("bloodPressure").innerText = "--";
         document.getElementById("bloodSugar").innerText = "--";
-        document.getElementById("bmi").innerText = "--";
+        document.getElementById("bodyTemp").innerText = "--";
+        document.getElementById("heartRate").innerText = "--";
     }
 }
 

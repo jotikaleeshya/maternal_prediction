@@ -175,7 +175,8 @@ def get_stats():
                 "data": {
                     "avgBloodPressure": "--",
                     "avgBloodSugar": "--",
-                    "avgBMI": "--"
+                    "avgBodyTemp": "--",
+                    "avgHeartRate": "--"
                 }
             })
 
@@ -184,15 +185,16 @@ def get_stats():
         avg_systolic = sum(d["systolicBP"] for d in recent_data) / len(recent_data)
         avg_diastolic = sum(d["diastolicBP"] for d in recent_data) / len(recent_data)
         avg_bs = sum(d["bs"] for d in recent_data) / len(recent_data)
-
-        avg_bmi = 22.5
+        avg_temp = sum(d["bodyTemp"] for d in recent_data) / len(recent_data)
+        avg_hr = sum(d["heartRate"] for d in recent_data) / len(recent_data)
 
         return jsonify({
             "success": True,
             "data": {
                 "avgBloodPressure": f"{int(avg_systolic)}/{int(avg_diastolic)}",
-                "avgBloodSugar": f"{int(avg_bs)}",
-                "avgBMI": f"{avg_bmi:.1f}"
+                "avgBloodSugar": f"{avg_bs:.1f}",
+                "avgBodyTemp": f"{avg_temp:.1f}",
+                "avgHeartRate": f"{int(avg_hr)}"
             }
         })
     except Exception as e:
